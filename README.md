@@ -33,77 +33,50 @@ Like any other game mechanic, remember that effective ads implementation require
 #### Let the player choose
 Allow players to opt in to watching ads, so they can choose between skipping them or receiving a reward. When players voluntarily watch an ad, they are more likely to pay attention and show interest in the advertised product. This is turn increases the quality of your impressions.
 
-<!-- insert image 
-![Ad content filters](https://cdn.applifier.com/files/Rovio1.png)
--->
-
-<!-- Caption: Example of rewarded ads implementation with opt-in, courtesy of Rovio.-->
+![Opt-in Rewarded Ad](https://cdn.applifier.com/files/Rovio1.png)
+> _Example of rewarded ads implementation with opt-in, courtesy of Rovio._
 
 #### Identify the right incentive
 Encouraging players to voluntarily watch an ad requires a compelling incentive. Successful implementations tend to offer in-game currency, power-ups, additional lives, or consumable items such as potions that help players recover and flourish in the game. 
 
-<!-- insert image 
-![Ad content filters](https://cdn.applifier.com/files/Zynga1.png)
--->
-
-<!-- Caption: Example of implementing rewarded ads to provide unlock keys, courtesy of Zynga.-->
+![Incentivized ads](https://cdn.applifier.com/files/Zynga1.png)
+> _Example of implementing rewarded ads to provide unlock keys, courtesy of Zynga._
 
 #### Identify the right placement
 Take the above tip a step further, by choosing the right incentive at the right time and place. When considering your ad [Placements](https://unityads.unity3d.com/help/monetization/placements-and-filters), think about stress points in your game that might be a good opportunity for an injection of resources. Consider the following examples to spur the creative process:
 
 - Implement a special shop type that allows the player to purchase unique items in exchange for watching an ad.
 
-<!-- insert image 
-![Ad content filters](https://cdn.applifier.com/files/NextGames.png)
--->
-
-<!-- Caption: Example of rewarded ads implementation, courtesy of Next Games.-->
+![Specialty Merchant](https://cdn.applifier.com/files/NextGames.png)
+> _Example of implementing rewarded ads as a specialty merchant, courtesy of Next Games._
 
 - Augment retention mechanics by boosting their rewards in exchange for watching an ad. For example, double the rewards from a daily login bonus, or offer extra daily attempts to win in-game prizes. 
 
-<!-- insert image 
-![Ad content filters](https://cdn.applifier.com/files/Futureplay1.png)
--->
+![Double Login Bonus](https://cdn.applifier.com/files/Futureplay1.png)
+> _Example of implementing rewarded ads to boost daily login bonuses, courtesy of Futureplay._
 
-<!-- Caption: Example of implementing rewarded ads to boost daily login bonuses, courtesy of Futureplay.-->
-
-<!-- insert image 
-![Ad content filters](https://cdn.applifier.com/files/Zynga2.png)
--->
-
-<!-- Caption: Example of implementing rewarded ads to provide extra chances at prizes, courtesy of Zynga.-->
+![Extra Spins](https://cdn.applifier.com/files/Zynga2.png)
+> _Example of implementing rewarded ads to provide extra chances at prizes, courtesy of Zynga._
 
 - Create a fun mini-game available to players that choose to watch an ad.
 
-<!-- insert image 
-![Ad content filters](https://cdn.applifier.com/files/Futureplay2.png)
--->
-
-<!-- Caption: Example of implementing rewarded ads as a mini-game, courtesy of Futureplay.-->
+![Carnival Mini-Game](https://cdn.applifier.com/files/Futureplay2.png)
+> _Example of implementing rewarded ads as a mini-game, courtesy of Futureplay._
 
 - Allow players to continue playing if they run out of lives, in exchange for watching an ad.
 
-<!-- insert image 
-![Ad content filters](https://cdn.applifier.com/files/Rovio2.png)
--->
-
-<!-- Caption: Example of implementing rewarded ads to provide extra lives, courtesy of Rovio.-->
+![Continue Playing](https://cdn.applifier.com/files/Rovio2.png)
+> _Example of implementing rewarded ads to provide extra lives, courtesy of Rovio._
 
 - When starting a new game session, promote engagement by presenting a chance to receive 30 minutes of double points or earned currency in exchange for watching an ad. 
 
-<!-- insert image 
-![Ad content filters](https://cdn.applifier.com/files/Futureplay3.png)
--->
-
-<!-- Caption: Example of implementing rewarded ads to boost earned currency for a period, courtesy of Futureplay.-->
+![Double Currency](https://cdn.applifier.com/files/Futureplay3.png)
+> _Example of implementing rewarded ads to boost earned currency for a period, courtesy of Futureplay._
 
 - Offer a power-up or boost if the player is about to lose, in exchange for watching an ad.
 
-<!-- insert image 
-![Ad content filters](https://cdn.applifier.com/files/Twimler.png)
--->
-
-<!-- Caption: Example of rewarded ads implementation, courtesy of Twimler.-->
+![Avoid Losing](https://cdn.applifier.com/files/Twimler.png)
+> _Example of implementing rewarded ads to stave off losing, courtesy of Twimler._
 
 - Get creative! Offer players earned currency when they don’t have enough to purchase an item at a shop; place a character or shop right before a challenging boss fight that offers to completely heal and regenerate the player character’s resources; offer a unique consumable boost to help push players who continue to fail a mission over the top. 
 
