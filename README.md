@@ -8,7 +8,7 @@ Sort: 60
 Placements are triggered events within your game that display ads from the Unity network. How you choose to implement them is entirely up to you. Our **[Best practices guide](https://unityads.unity3d.com/help/monetization/design-guide)** provides some advice and examples of effective implementation. Settings in the [Ads Monetization Dashboard](https://operate.dashboard.unity3d.com) control how those Placements display ad content. 
 
 ## Managing Placements
-1. From the [Operate tab](https://operate.dashboard.unity3d.com) of the Developer Dashboard, select your Project.
+1. From the [**Operate** tab](https://operate.dashboard.unity3d.com) of the Developer Dashboard, select your Project.
 2. Select **Platforms** from the left navigation bar to view a list of your Project's active platforms.
 3. Select the platform with Placements to manage.
 
@@ -47,13 +47,13 @@ Select **EDIT** next to the Placement you wish to edit to bring up the **Edit pl
 ## Filtering ad content
 Unity Ads provides tools to refine your ad Placement strategy by targeting specific demographics with specific content.
  
-1. From the [Operate tab](https://operate.dashboard.unity3d.com) of the Developer Dashboard, select your Project.
+1. From the [**Operate** tab](https://operate.dashboard.unity3d.com) of the Developer Dashboard, select your Project.
 2. Select **Platforms** from the left navigation bar to view a list of your Project's active platforms.
 3. Select the platform with Placements you wish to filter.
 4. Select the **AD FILTERING** tab to bring up the configuration menu. Here you can exclude ad categories to suit your game's target audience, using the following filter criteria:
-   - A) Check options in the **GAME CATEGORIES** section to filter out ad content for games of a certain genre.
-   - B) Check options in the **OTHER CATEGORIES** section to filter out ad content for games containing certain content or themes.
-   - C) Check options in the **EXCLUDE CONTENT** section to filter out ad content for apps targeting specific age ratings. 
+   - **A)** Check options in the **GAME CATEGORIES** section to filter out ad content for games of a certain genre.
+   - **B)** Check options in the **OTHER CATEGORIES** section to filter out ad content for games containing certain content or themes.
+   - **C)** Check options in the **EXCLUDE CONTENT** section to filter out ad content for apps targeting specific age ratings. 
 5. Select **SAVE** to apply your selected filters.
 
 <!-- insert image 
