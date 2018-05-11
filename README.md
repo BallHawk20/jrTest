@@ -158,6 +158,8 @@ You can view records of your Unity Ads payouts at any time:
 5. Select the **Payouts** tab.
 6. Select the date range you wish to query, then click the **Apply** button to view a list of invoices.
 
+If you experience any issues configuring automated payouts, please [contact Unity Ads support](mailto:unityads-support@unity3d.com).
+
 ### Invoices
 To receive payment, please submit an invoice to _accountspayable-fi@unity3d.com_. The minimum earnings balance required to submit an invoice is $100 USD. 
 
