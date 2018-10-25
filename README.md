@@ -69,12 +69,12 @@ There are several ways to refine your report:
 1. Filter data by platform, or date range.
 2. Select the desired metric to visualize the data as a chart.
 3. Change the comparison field to split data across different categories and compare the splits:
-  * **Compare Date** plots ad revenue for each day from the selected date range.
-  * **Compare Platform** plots ad revenue for each platform (**Google Play Store**, **Apple App Store**, and **Others**) against each other.
-  * **Compare Country** plots ad revenue for each country (**Australia**, **Canada**, **China**, **Germany**, **France**, **United Kingdom**, **Japan**, **South Korea**, **Russia**, **Taiwan**, **United States**, and **Others**) against each other.
-  * **Compare to previous period** plots ad revenue for the current date range against ad revenue from the preceding equivalent date range.
-  * **Compare Placements** plots ad revenue for each [Placement](https://unityads.unity3d.com/help/monetization/placements) against each other.
-  * **Compare All Projects** plots ad revenue for the current Project against your Organization’s other Unity Ads-enabled Projects.
+    * **Compare Date** plots ad revenue for each day from the selected date range.
+    * **Compare Platform** plots ad revenue for each platform (**Google Play Store**, **Apple App Store**, and **Others**) against each other.
+    * **Compare Country** plots ad revenue for each country (**Australia**, **Canada**, **China**, **Germany**, **France**, **United Kingdom**, **Japan**, **South Korea**, **Russia**, **Taiwan**, **United States**, and **Others**) against each other.
+    * **Compare to previous period** plots ad revenue for the current date range against ad revenue from the preceding equivalent date range.
+    * **Compare Placements** plots ad revenue for each [Placement](https://unityads.unity3d.com/help/monetization/placements) against each other.
+    * **Compare All Projects** plots ad revenue for the current Project against your Organization’s other Unity Ads-enabled Projects.
 4. Choose whether to view data as a spline chart, bar chart, or to export data as a CSV file. 
 
 ### IAP Purchases
@@ -215,7 +215,7 @@ Enter the following information in the **Add new project** prompt:
 
 1. **Project name** acts as the title by which your Project is identified in the dashboard UI.
 2. **Apple App Store ID** is optional, but recommended for published games to maximize access to third-party advertising partners.
-3. **Google Play Store ID** is optional, but recommended for published games to maximize access to third-party advertising partners.<br><br>**Note**: You can always add store IDs later by selecting the Project, then **Monetization** > **Platforms** > **ADD STORE DETAILS**. For more information on locating the relative store IDs, see section on Adding store details.<br>
+3. **Google Play Store ID** is optional, but recommended for published games to maximize access to third-party advertising partners.<br><br>**Note**: You can always add store IDs later by selecting the Project, then **Monetization** > **Platforms** > **ADD STORE DETAILS**. For more information on locating the relative store IDs, see section on Adding store details.<br><br>
 4. Check the COPPA compliance designation if your game will target an audience under 13 years old in the United States. 
 
 Click **ADD PROJECT** to create your Project. Projects created in the Developer Dashboard automatically enable the Operate services.
