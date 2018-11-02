@@ -1,37 +1,100 @@
-## Adding a new creative pack
-In the Creative packs section of the campaign page, select **CREATE** (or **CREATE CREATIVE PACKS** if none exist yet).
+```
+using UnityEngine;
+using UnityEngine.Purchasing;
 
-![Setting up a new creative pack.](https://github.com/Applifier/unity-ads/wiki/advertising/NewCreatives.png)
-<p align="center"><i>Setting up a new creative pack.</i></p>
+public class IAPManager : MonoBehaviour, IStoreListener {
+  private IStoreController controller;
+  
+  //The following products must be added to the Product Catalog in the Editor:
+  private const string coins100 = "100.gold.coins";
+  private const string coins500 = "500.gold.coins";
 
-Enter a **creative pack name**, then upload **end card** and **video** assets (detailed below).
+  public int coin_count = 0;
 
-### Creative asset specs
-#### End cards
-End cards are creative assets displayed at the end of an ad with a call to action for users to download the advertised product. 
+  void Awake () { 
+    StandardPurchasingModule module = StandardPurchasingModule.Instance (); 
+    ProductCatalog catalog = ProductCatalog.LoadDefaultCatalog (); 
+    ConfigurationBuilder builder = ConfigurationBuilder.Instance (module);
+    IAPConfigurationHelper.PopulateConfigurationBuilder (ref builder, catalog); 
+    UnityPurchasing.Initialize (this, builder); 
+  }
 
-Select **Square** end cards from the dropdown menu to upload one creative format that will work on any device, in any orientation, and any aspect ratio (recommended to prevent cropping and maximize compatibility).
+  public void OnInitialized (IStoreController controller, IExtensionProvider extensions) { 
+    this.controller = controller; Debug.Log ("Initialization Successful"); 
+  }
+  
+  public void OnInitializeFailed(InitializationFailureReason error) { 
+    Debug.Log ("UnityIAP.OnInitializeFailed (" + error + ")");
+  }
+  
+  public void OnPurchaseFailed (Product item, PurchaseFailureReason reason) { 
+    Debug.Log ("UnityIAP.OnPurchaseFailed (" + item + ", " + reason + ")"); 
+  }
 
-Select **Portrait & landscape** end cards from the dropdown menu to upload one creative for each device orientation.
- 
-**Note**: Dynamic cropping may occur when using landscape and portrait images, to account for different device sizes. To avoid losing critical information, allow a 100-pixel buffer from the top and bottom edges of landscape images, or left and right edges for portrait images.
- 
-- Use JPG or PNG format.
-- Use 800 x 800 (1:1) pixel resolution for square images
-- Use 800 x 600 (4:3) pixel resolution for landscape images
-- Use 600 x 800 (3:4) pixel resolution for portrait images.
-- (Apple only) Due to Apple requirements, Unity recommends only depicting the Apple app store logo on end cards for iOS videos. See [Apple marketing guidelines](https://developer.apple.com/app-store/marketing/guidelines/#badges) for more information.
+  public PurchaseProcessingResult ProcessPurchase (PurchaseEventArgs e) {
+    string purchasedItem = e.purchasedProduct.definition.id;
+    
+    switch (purchasedItem) { 
+      case coins100: Debug.Log ("IAPLog: Congratualtions you are richer!"); 
+      coin_count += 100; 
+      Debug.Log ("IAPLog: Coin count: " + coin_count); 
+      break; 
+      
+      case coins500: Debug.Log ("IAPLog: Congratualtions you are richer!"); 
+      coin_count += 500; 
+      Debug.Log ("IAPLog: Coin count: " + coin_count);
+      break;
+    }
+    return PurchaseProcessingResult.Complete;
+  }
 
-#### Videos
-Video ad assets marketing your app. While only one video is required, uploading a video for each orientation yields better optimization. When a creative contains both, Unity’s valuation algorithm selects the best orientation to display.
+  public void Buy(string productId) { 
+    Debug.Log ("UnityIAP.BuyClicked (" + productId + ")");
+    controller.InitiatePurchase (productId);
+  }
+}
+```
 
-- 30 seconds or less.
-- H.264-encoded MOV, MP4, or AVI format.
-- 16:9 pixel ratio for landscape videos, or 9:16 pixel ratio for portrait videos.
-- Recommended file size is 10MB. Maximum file size is 100MB. Videos are re-encoded to be suitable for various bitrates. The final video shown will be optimized for the user's available network speed and cache settings.
-- (Apple only) Due to Apple requirements, we recommend only depicting the Apple app store logo. See [Apple marketing guidelines](https://developer.apple.com/app-store/marketing/guidelines/#badges) for more information.
+<a name="ImplementingAds"></a>
+### Implementing Unity Ads
+You must also [initialize Unity Ads](https://unityads.unity3d.com/help/monetization/integration-guide-unity), whether or not you use the Codeless or manual IAP initialization method. The following code sample illustrates an initialization method to invoke:
 
-![Uploading creative assets for your campaign.](https://github.com/Applifier/unity-ads/wiki/advertising/UploadCreatives.png)
-<p align="center"><i>Uploading creative assets for your campaign.</i></p>
- 
-When finished uploading creative assets, click **CREATE**. Your new creative pack now appears in the campaign’s **Creative Packs** list with a **Processing** status. This status indicates that your creative pack is undergoing moderation (see section on **Moderation** below). Click **ASSIGN** to choose which creative packs to include with the campaign. Note that selecting the downward arrow expands the creative pack’s details.
+```
+using UnityEngine;
+using UnityEngine.Monetization;
+
+public class AdManager : MonoBehaviour {
+
+  public bool testMode = true;
+  private const string adPlacement = "video";
+  private const string promoPlacement = "promo";
+
+  #if UNITY_IOS
+    private const string gameId = "0000000"; // Your iOS game ID here
+  #elif UNITY_ANDROID
+    private const string gameId = "9999999"; // Your Android game ID here
+  #else
+    private const string gameId = "0123456"; // Prevents Editor Errors
+  #endif
+
+  private void Awake () {
+    if (Monetization.isSupported && !Monetization.isInitialized) {
+      Monetization.Initialize (gameId, testMode); 
+    }
+  }
+
+  public void ShowVideoAd () { 
+    ShowAdPlacementContent ad = Monetization.GetPlacementContent (adPlacement) as ShowAdPlacementContent; 
+    if (ad != null){
+      ad.Show ();
+    }
+  }
+
+  public void ShowPromo () { 
+    PromoAdPlacementContent promo = Monetization.GetPlacementContent (promoPlacement) as PromoAdPlacementContent; 
+    if (promo != null) {
+      promo.Show (); 
+    }
+  }
+}
+```
