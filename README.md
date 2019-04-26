@@ -1,233 +1,362 @@
 /*
-Title: Dashboard guide  
-Sort: 1
+Title: Unity OpenRTB specs
+Description: Specifications for Unified Auction exchange integration
+Sort: 2
 */
 
-
-The **Operate** tab of the [Developer Dashboard](https://operate.dashboard.unity3d.com/) provides tools to manage monetization across your Unity Projects. From the dashboard, you can configure [Placements](https://unityads.unity3d.com/help/monetization/placements), filters, test devices, IAP Promotions, and revenue reports to maximize your earning potential.
-
-# Organization-level navigation
-By default, you enter the dashboard at the Organization level (for more information, see [Unity Organizations](https://docs.unity3d.com/2018.1/Documentation/Manual/OrgsUnityOrganizations.html)). The information on the **Operate** landing page applies to your entire Organization, rather than a specific Project. 
-
-![Org-level navigation for the Operate dashboard](https://github.com/Applifier/unity-ads/wiki/resources/OperateNav.png)
-
-Use the left navigation bar to select your desired option.
-
-## Dashboard
-Select **Dashboard** from the left navigation bar to display your Organization’s at-a-glance revenue report. You can view statistics on **Total Revenue**, **Total [DAU](https://en.wikipedia.org/wiki/Daily_active_users)**, or **Total New Users** across all the Organization’s Projects. You can also filter the data by platform or date range.
-
-![An overview of your Organization's monetization](https://github.com/Applifier/unity-ads/wiki/resources/OrgOverview.png)
-
-## Projects
-Select **Projects** from the left navigation bar to view a list of your Organization’s Projects. The list view provides at-a-glance information about each Project’s **Total Revenue**, **Ad Revenue**, **New Users**, **DAU** (daily active users), and **ARPDAU** (average revenue per daily active user).
-
-![List view of your Organization's Projects](https://github.com/Applifier/unity-ads/wiki/resources/ProjectsList.png)
-
-Select any Project from the list to manage that Project’s operations settings (see section on [**Project-level navigation**](#project-level-navigation)).
-
-For more information, also see section on [**Managing Projects**](#managing-projects).
-
-## Ads Data Export
-### Email & CSV
-Select **Ads Data Export** > **Email & CSV** from the left navigation bar to export a monetization report for your Organization. 
-
-![Export monetization data for your Organization](https://github.com/Applifier/unity-ads/wiki/resources/ExportCSV.png)
-
-For more information on configuring reports, see documentation on [**Monetization statistics**](https://unityads.unity3d.com/help/resources/statistics).
-
-### Test Devices
-Select **Ads Data Export** > **Test Devices** from the left navigation bar to register an iOS or Android device for testing your Unity Ads or IAP integration without monetizing the device. This is important for testing integration in unpublished games, to avoid being flagged for fraud. 
-
-![Registering a test device](https://github.com/Applifier/unity-ads/wiki/resources/RegisterDevice.png)
-
-Enter your device's name in the first input field, and your IDFA (ID for advertising) in the second input field. For more information on locating your device's IDFA, see documentation on [How to find your mobile device identifiers](http://blog.mparticle.com/how-to-find-your-mobile-device-identifiers/).
-
-### API Access
-Select **Ads Data Export** > **API Access** from the left navigation bar to locate your Organization’s API key. This key is required for generating reports through the [Monetization statistics API](https://unityads.unity3d.com/help/resources/statistics#using-the-monetization-stats-api).
-
-## Invoicing
-Select **Invoicing** from the left navigation bar to configure [automated payouts](https://unityads.unity3d.com/help/resources/revenue-and-payment#automated-payouts). For more information, see documentation on [**Revenue and payment**](https://unityads.unity3d.com/help/resources/revenue-and-payment).
-
-# Project-level navigation
-Select a Project to drill down into that Project’s dashboard settings. 
-
-![Project-level navigation in the Operate dashboard](https://github.com/Applifier/unity-ads/wiki/resources/ProjectNav.png)
-
-Use the left navigation bar to select your desired option.
-
 ## Overview
-Select **Overview** from the left navigation bar to display your Project’s at-a-glance revenue report. You can view statistics on **Total Revenue**, **Average [DAU](https://en.wikipedia.org/wiki/Daily_active_users)**, or **Day 1 Retention** across all the Organization’s Projects. You can also filter the data by platform or date range.
+Unified Auction allows demand-side partners (DSPs) and advertisers to bid on each ad impression. All Unified Auctions are second-price auctions, meaning the winning bidder pays 1 cent higher than the next highest bid. Unity’s implementation is based off the OpenRTB 2.3 specification, and may require parameters that are optional for the Interactive Advertising Bureau ([IAB](https://www.iab.com/our-story/)). Please read the integration guidelines and [contact](mailto:ads-programmatic@unity3d.com) Unity if you have any questions. 
 
-## Reporting
-### Ad Revenue Report
-Select **Reporting** > **Ad Revenue** from the left navigation bar to view a breakdown of ad revenue for your Project. 
+### Requirements 
+In order to participate in Unified Auction, please review the following criteria: 
+*  **Support for OpenRTB 2.3+**: Unity supports OpenRTB 2.3, and some components of OpenRTB 2.5. Partners should support similar specs as described [here](https://www.iab.com/wp-content/uploads/2015/06/OpenRTB-API-Specification-Version-2-3.pdf). 
+*  **Implement nURL impression tracking**: ```nURL``` is a field in the bid response’s [```bid``` object](https://unityads.unity3d.com/help/exchange/openrtb-specs#bid-objects), or the win notice URL called by the real-time bidding (RTB) exchange. ```nURL``` is one of several unique bid response requirements necessary for Unity integration, which are identified in the attribute details section. 
+*  **Development resources**: Partners implementing Unity’s version of OpenRTB should have sufficient development resources to complete the following: 
+    *  A [pre-Integration questionnaire](https://goo.gl/forms/LOEA8HYrOeweVCbD3) that helps Unity understand how best to support your integration. 
+    *  Spec alignment ([validating the DSP endpoint](https://unityads.unity3d.com/help/exchange/endpoint-test-tool), bid response and impression pixel). 
+    *  Creative validation. 
+    *  Discrepancy check and ramp-up. 
 
-![Revenue report for an individual Project](https://github.com/Applifier/unity-ads/wiki/resources/ProjectRevenueReport.png)
+### How it works 
+1.  Unity receives an ad request from a mobile device. 
+2.  Unity makes an ```HTTP POST``` request to all bidding partner endpoints (each bidder must respond within 200ms, total roundtrip). Unity passes this value through the [```bidrequest.tmax```](#request-objects) field. 
+3.  Unified Auction runs a second-price auction based on valid bidder responses. 
+4.  Upon winning the auction, Unity retrieves the winning bid’s HTML and imptrackers to the client for pre-caching. 
+5.  When the user surfaces the ad, Unity pings the winning bidder’s [```nURL```](#bid-objects) (required field) to notify the DSP of the impression.
+6.  The creative renders to the end user, and Unity fires other event trackers along with the creative payload.
 
-There are several ways to refine your report:
+### In this article
+* [Bid request specs](#bid-requests)
+  * [Example bid requests](#example-bid-requests)
+* [Bid response specs](#bid-responses)
+  * [Example bid responses](#example-bid-responses)
 
-1. Filter data by platform, or date range.
-2. Select the desired metric to visualize the data as a chart.
-3. Change the comparison field to split data across different categories and compare the splits:
-    * **Compare Date** plots ad revenue for each day from the selected date range.
-    * **Compare Platform** plots ad revenue for each platform (**Google Play Store**, **Apple App Store**, and **Others**) against each other.
-    * **Compare Country** plots ad revenue for each country (**Australia**, **Canada**, **China**, **Germany**, **France**, **United Kingdom**, **Japan**, **South Korea**, **Russia**, **Taiwan**, **United States**, and **Others**) against each other.
-    * **Compare to previous period** plots ad revenue for the current date range against ad revenue from the preceding equivalent date range.
-    * **Compare Placements** plots ad revenue for each [Placement](https://unityads.unity3d.com/help/monetization/placements) against each other.
-    * **Compare All Projects** plots ad revenue for the current Project against your Organization’s other Unity Ads-enabled Projects.
-4. Choose whether to view data as a spline chart, bar chart, or to export data as a CSV file. 
+## Bid requests
+When Unity receives an ad request, Unified Auction sends a bid request to all potential bidders, including data utilized for personalized ads in cases where the user does not restrict its use. 
 
-### IAP Purchases
-Select **Reporting** > **IAP Purchases** from the left navigation bar to view a breakdown of In-App Purchasing ([IAP](https://docs.unity3d.com/2018.1/Documentation/Manual/UnityIAP.html)) revenue for your Project. 
+**Note**: Your endpoint must support ```HTTPS``` protocol in order to receive bid requests. 
 
-![IAP revenue report for an individual Project](https://github.com/Applifier/unity-ads/wiki/resources/IAPRevenue.png)
+Unity supports JavaScript Object Notation (JSON) formats for bid request data. The mime type for the standard JSON representation is ```application/json``` and specified in an HTTP header field as: 
 
-You can filter data by date range, and display it as a spline chart, bar chart, or stacked chart.
+```ContentType: application/json``` 
+ 
+Unity sends Accept-Encoding gzip compression in the request, and highly recommends compressing the response. For more information, see section **2.4 Data Encoding** in the [OpenRTB API guide](https://www.iab.com/wp-content/uploads/2016/03/OpenRTB-API-Specification-Version-2-5-FINAL.pdf).  
 
-### IAP Promotions
-Select **Reporting** > **IAP Promotions** from the left navigation bar to view analytic insights for your Project’s [IAP Promo](https://docs.unity3d.com/2018.1/Documentation/Manual/IAPPromo.html) performance. For more information on configuring Promos, see documentation on  [**IAP Promo integration**](https://docs.unity3d.com/2018.1/Documentation/Manual/IAPPromoIntegration.html).
+**Note**: Unity passes each of the following bid response attributes when available, unless otherwise noted.  
 
-![IAP Promo revenue for an individual Project](https://github.com/Applifier/unity-ads/wiki/resources/PromoRevenue.png)
+### request objects 
+An object class that describes a bid request. 
 
-You can filter the following metrics by Promotion and date range: 
+| **Attribute** | **Type** | **Example** | **Description** |
+|:---|:---|:---|:---|
+| ```id``` | string | ```"id": "bcaIDT1Nbv0zU8mn9tXQ6j"``` | A Unity-generated ID. This ID must be returned in the [Bid Response object](#bid-responses). |
+| ```pmp``` | object | For more information, see section on [```pmp``` objects](#pmp-objects). | Private marketplace container for direct deals between buyers and sellers that may pertain to the impression. The actual deals are represented as a collection of [```deal``` objects](#deal-objects). |
+| ```imp``` | object | For more information, see section on [```impression``` objects](#impression-objects). | Unity supports one ```impression``` object per bid request. |
+| ```at``` | int | ```"at": 2``` | The auction type used; all Unified Auctions are second-price auctions, so the value is always ```2```. |
+| ```app``` | object | For more information, see section on [```app``` objects](#app-objects). | The ```app``` object describing the game. |
+| ```device``` | object | For more information, see section on [```device``` objects](#device-objects). | The ```device``` object describing the user's device. |
+| ```tmax``` | int | ```"tmax": 200``` | Timeout value in milliseconds.<br><br>**Note**: We suggest partners respond within 200 ms to avoid the network connection dropping. |
+| ```bcat``` | string array | ```"bcat": ["599"]``` | Blocked advertiser categories, using [IAB taxonomy IDs](https://www.iab.com/guidelines/taxonomy/).<br><br>**Note**: This attribute is supported but optional. |
+| ```badv``` | string array | ```"badv": ["blockedAdvertiser.com"]``` | Blocked list of advertisers, using their domains.<br><br>**Note**: This attribute is supported but optional. |
+| ```regs``` | object | For more information, see section on [user consent](#user-consent-classes). | A ```regs``` object that specifies any industry, legal, or governmental regulations enforced for this request. |
 
-* **IAP Revenue**: The cumulative revenue generated from Promo offers.
-* **Users**: The number of users exposed to Promo offers.
-* **ARPPU**: The [average revenue per paying user](https://en.wikipedia.org/wiki/Average_revenue_per_user).
-* **Conversions**: The percent of exposed users that purchased the offer.
-* **Return Rate (7 days)**: The 7-day retention of users after exposure to a Promo offer.
+### pmp objects 
+An object class that describes private marketplace attributes for direct deals between buyers and sellers that may pertain to the impression. For more information, see section **3.2.11 Object: Pmp** in the [OpenRTB API guide](https://www.iab.com/wp-content/uploads/2016/03/OpenRTB-API-Specification-Version-2-5-FINAL.pdf).  
 
-Hover over any metric breakdown in the timeline to view the full data for that day.
+| **Attribute** | **Type** | **Example** | **Description** |
+|:---|:---|:---|:---| 
+| ```private_auction``` | int | ```"private_auction": 0``` | Indicator of auction eligibility to seats named in the [```deal``` objects](#deal-objects):<br><br><ul><li>```0``` (default; all bids are accepted)</li><li>```1``` (bids are restricted to the deals specified and the terms therein)</li></ul> |
+| ```deals``` | object array | For more information, see section on [```deal``` objects](#deal-objects). | An array of ```deal``` objects that convey the specific deals applicable to this impression. |
 
-## Monetization
-### Placements
-Select **Monetization** > **Placements** from the left navigation bar to create and manage Placements for your Project. For more information, see documentation on [**Placements**](https://unityads.unity3d.com/help/monetization/placements). 
+### deal objects 
+An object class that describes a specific deal that was established a priori between a buyer and seller. Its presence indicates that the impression is available under the terms of that deal. For more information, see section **3.2.12 Object: Deal** in the [OpenRTB API guide](https://www.iab.com/wp-content/uploads/2016/03/OpenRTB-API-Specification-Version-2-5-FINAL.pdf).  
 
-### Ad filters
-Select **Monetization** > **Ad Filters** to refine your ad strategy by targeting specific demographics with specific content. 
+| **Attribute** | **Type** | **Example** | **Description** |
+|:---|:---|:---|:---| 
+| ```id``` | string | | A unique identifier for the direct deal. |
+| ```bidfloor``` | float | ```"bidfloor": 0``` | Minimum bid for this impression expressed in [CPM](https://en.wikipedia.org/wiki/Cost_per_impression), defaulting to ```0```. |
+| ```bidfloorcur``` | string | ```"bidfloorcur": "USD"``` | Currency using [ISO-4217 alpha codes](https://en.wikipedia.org/wiki/ISO_4217#Active_codes).<br><br>**Note**: This may be different from the currency returned in the response, if the exchange allows it. |
+| ```at``` | int | ```"at": 3``` | Optional override of the auction type of the bid request:<br><br><ul><li>```1``` (first price)</li><li>```2``` (second price plus)</li><li>```3``` (the value passed in ```bidfloor``` is the agreed upon deal price).</li></ul><br><br>**Note**: Additional auction types can be set by the exchange. |
+| ```wseat``` | string array | | Whitelist of buyer seats (e.g. advertisers, agencies) allowed to bid on this deal. IDs of seats and the buyer’s customers to which they refer must be coordinated between bidders and Unity a priori. Omission implies no seat restrictions. |
+| ```wadomain``` | string array | ```"wadomain": ["advertiser1.com", "advertiser2.com"]``` | Array of advertiser domains allowed to bid on this deal. Omission implies no advertiser restrictions. |
 
-**Note**: While ad filters are often advantageous, blocking content categories or applying age limits can negatively impact your revenue by creating a smaller pool of bidders. For more information on this trade off, please read our [best practices guide](https://unityads.unity3d.com/help/resources/best-practices).
+### impression objects 
+An object class that describes an ad impression. 
 
-![Ad content filters](https://github.com/Applifier/unity-ads/wiki/resources/ContentFilters.png)
+| **Attribute** | **Type** | **Example** | **Description** |
+|:---|:---|:---|:---| 
+| ```id``` | string | ```"id": "1"``` | Unity supports one ```impression``` object per bid request; the ```id``` value is always ```1```. |
+| ```video``` | object | For more information, see section on [```video``` objects](#video-objects). | The ```video``` object describes a video impression.<br><br>**Note**: This attribute is always passed for video ads only. |
+| ```banner``` | object | For more information, see section on [```banner``` objects](#banner-objects). | The ```banner``` object describes a banner display impression.<br><br>**Note**: This attribute is only passed for banner and display ads. |
+| ```instl``` | int | ```"instl": 1``` | Banner ad requests have a value of ```0```; all other Placements are interstitials, with a  value of ```1```. For more information, see documentation on [Placements](https://unityads.unity3d.com/help/monetization/placements). |
+| ```secure``` | int | ```"secure": 1``` | Unity requires impressions to have secure ```HTTPS URL``` creative assets and markup; the value is always ```1```. |
+| ```tagid``` | string | ```"tagid": "15939-video"``` | Unity passes ```<appID>-<adType>``` as the identifier. |
 
-#### Category filtering
-Click the Edit icon to edit category exclusions for each platform. Check the categories you wish to include, then click **Save** to confirm your settings.
+#### video objects 
+A subset of the ```impression``` object class that describes a video ad impression. For more information, see section **3.2.7 Object: Video** in the [OpenRTB API guide](https://www.iab.com/wp-content/uploads/2016/03/OpenRTB-API-Specification-Version-2-5-FINAL.pdf).  
 
-#### Age limits
-Click the Edit icon to specify the appropriate age limit for your game on each platform. Advertisements targeting older audiences will not be allowed to bid on your impressions. Click **Save** to confirm your settings.
+| **Attribute** | **Type** | **Example** | **Description** |
+|:---|:---|:---|:---| 
+| ```mimes``` | string array | ```"Mimes": ["video/mp4"]``` | Content mime types supported; this value is currently always ```["video/mp4"]```. |
+| ```minduration``` | int | ```"minduration": 15``` | Minimum video ad duration in seconds; this value is always ```15```. |
+| ```maxduration``` | int | ```"maxduration": 30``` | Maximum video ad duration in seconds; this value is always ```30```. |
+| ```w``` | int | ```"w": 1024``` | Width of the video player in device independent pixels ([DIPS](https://en.wikipedia.org/wiki/Device-independent_pixel)). |
+| ```h``` | int | ```"h": 600``` | Height of the video player in device independent pixels ([DIPS](https://en.wikipedia.org/wiki/Device-independent_pixel)). |
+| ```linearity``` | int | ```"linearity": 1``` | Indicates the linearity of a video ad.<br><br><ul><li>```1``` (linear/in-stream)</li><li>```2``` (non-linear/overlay)</li></ul><br><br>If neither is specified, assume both are allowed. For more information, see table **5.7 Linearity** in the [OpenRTB API guide](https://www.iab.com/wp-content/uploads/2016/03/OpenRTB-API-Specification-Version-2-5-FINAL.pdf). |
+| ```sequence``` | int | ```"sequence": 2``` | If multiple ad impressions are offered in the same bid request, the sequence number allows for the coordinated delivery of multiple creatives. |
+| ```pos``` | int | ```"pos": 7``` | Video position; Unity Ads inventory is always set to full screen (```7```). For a complete list of supported values, see table **5.4 Video Position** in the [OpenRTB API guide](https://www.iab.com/wp-content/uploads/2016/03/OpenRTB-API-Specification-Version-2-5-FINAL.pdf). |
+| ```protocols``` | int array | ```"protocols": [2, 3, 5, 6]``` | Array of supported video protocols. For a complete list of supported values, see table **5.8 Protocols** in the [OpenRTB API guide](https://www.iab.com/wp-content/uploads/2016/03/OpenRTB-API-Specification-Version-2-5-FINAL.pdf).<br><br>**Note**: Unity fully supports VAST 2.0 (```2```) and VAST 2.0 Wrapper (```5```), and may support some features of VAST 3.0 (```3```) and VAST 3.0 Wrapper (```6```). Please check with your account manager for details. |
+| ```battr``` | int array | ```"battr": [ 1, 3, 5, 6, 8, 9, 13]``` | Blocked creative attributes. For a complete list of supported values, see table **5.3 Creative Attributes** in the [OpenRTB API guide](https://www.iab.com/wp-content/uploads/2016/03/OpenRTB-API-Specification-Version-2-5-FINAL.pdf).<br><br>**Note**: Unity’s policy is to block the following by default:<br><br><ul><li>```[1]``` Audio Ad (auto-play)</li><li>```[3]``` Expandable (automatic)</li><li>```[5]``` Expandable (user initiated - rollover)</li><li>```[6]``` In-Banner video ad (auto-play)</li><li>```[8]``` Pop (e.g., Over, Under, or Upon Exit)</li><li>```[9]``` Provocative or Suggestive Imagery</li><li>```[13]``` User Interactive (e.g. embedded games)</li></ul> |
 
-If you have additional questions or unique requests regarding ad filtering, [contact Unity Ads support](mailto:unityads-support@unity3d.com).
+#### banner objects 
+A subset of the ```impression``` object class that describes a banner ad impression. For more information, see section **3.2.6 Object: Banner** in the [OpenRTB API guide](https://www.iab.com/wp-content/uploads/2016/03/OpenRTB-API-Specification-Version-2-5-FINAL.pdf).  
 
-### In-App Purchases
-Select **Monetization** > **In-App Purchases** from the left navigation bar to import and manage IAP Product Catalogs for your Project. For a complete guide, see documentation on [**Product Catalogs**](https://docs.unity3d.com/2018.1/Documentation/Manual/IAPPromoProducts.html). 
+| **Attribute** | **Type** | **Example** | **Description** |
+|:---|:---|:---|:---| 
+| ```w``` | int | ```"w": 480``` | Width of the banner display in device independent pixels ([DIPS](https://en.wikipedia.org/wiki/Device-independent_pixel)). |
+| ```h``` | int | ```"h": 320```  | Height of the banner display in device independent pixels ([DIPS](https://en.wikipedia.org/wiki/Device-independent_pixel)). |
+| ```format``` | object array | ```"format": [{"w": 768, "h": 1024}]``` | Array of ```format``` objects representing the banner display sizes permitted. Supported sizes:<br><br><ul><li>250x300</li><li>300x250</li><li>320x480</li><li>480x320</li><li>768x1024</li><li>1024x768</li></ul><br><br>**Note**: If no banner format is specified, the dimensions default to the ```h``` and ```w``` values. If you have questions about supporting different dimensions, please contact Unity. |
+| ```pos``` | int | ```"pos": 7``` | Ad position. For a complete list of supported values, see table **5.4 Ad Position** in the [OpenRTB API guide](https://www.iab.com/wp-content/uploads/2016/03/OpenRTB-API-Specification-Version-2-5-FINAL.pdf). |
+| ```api``` | int array | ```"api": [5]``` | API frameworks supported by the publisher; Unity supports MRAID 2.0 (```5```). For a complete list of supported values, see table **5.6 API Frameworks** in the [OpenRTB API guide](https://www.iab.com/wp-content/uploads/2016/03/OpenRTB-API-Specification-Version-2-5-FINAL.pdf). |
+| ```battr``` | int array | ```"battr": [ 1, 3, 5, 6, 8, 9]``` | Blocked creative attributes. For a complete list of supported values, see table **5.3 Creative Attributes** in the [OpenRTB API guide](https://www.iab.com/wp-content/uploads/2016/03/OpenRTB-API-Specification-Version-2-5-FINAL.pdf).<br><br>**Note**: Unity’s policy is to block the following by default:<br><br><ul><li>```[1]``` Audio Ad (auto-play)</li><li>```[3]``` Expandable (automatic)</li><li>```[5]``` Expandable (user initiated - rollover)</li><li>```[6]``` In-Banner video ad (auto-play)</li><li>```[8]``` Pop (e.g., Over, Under, or Upon Exit)</li><li>```[9]``` Provocative or Suggestive Imagery</li></ul> |
 
-### IAP Promotions
-Select **Monetization** > **IAP Promotions** from the left navigation bar to create and manage IAP Promos for your Project. For a complete guide, see documentation on [**Promotions**](https://docs.unity3d.com/2018.1/Documentation/Manual/IAPPromoPromotions.html). 
+### app objects 
+An object class that describes the app making the ad request. For more information, see section **3.2.14 Object: App** in the [OpenRTB API guide](https://www.iab.com/wp-content/uploads/2016/03/OpenRTB-API-Specification-Version-2-5-FINAL.pdf).  
 
-## Optimization
-Use unique features from [Unity Analytics](https://docs.unity3d.com/2018.1/Documentation/Manual/UnityAnalytics.html) to fine-tune your games. 
+| **Attribute** | **Type** | **Example** | **Description** |
+|:---|:---|:---|:---| 
+| ```id``` | string | ```"id": "a1b2c3d4e5f6g7h8i9j0123456789abc"``` | Exchange-specific application ID. |
+| ```bundle``` | string | ```"bundle": "com.unity.trashdash"``` | Application bundle or package name, intended to be unique across exchanges.<br><br><ul><li>**Android** apps pass the Bundle ID.</li><li>**iOS** apps pass the Bundle ID or Store ID.</li></ul><br><br>**Note**: This attribute may not be passed in circumstances where contractual agreements with the publisher prohibit it. |
+| ```name``` | string | ```"name": "Trash Dash"``` | App name.<br><br>**Note**: This attribute may not be passed in circumstances where contractual agreements with the publisher prohibit it. |
+| ```storeurl``` | string | ```"storeurl": "https://itunes.apple.com/us/app/trash-dash/id1198634425?mt=8"``` | App store URL for an installed app (for [QAG](https://archive.iab.com/iab.atlasworks.com/QAGInitiative/overview.html) 1.5 compliance).<br><br>**Note**: This attribute is supported but optional. |
 
-### Tutorial Manager (Beta)
-Tutorial Manager adapts your game’s tutorial to individual players. Whether they're seasoned veterans or brand new, Unity serves an experience that's right for the player – leading to better retention for your game.
+### device objects 
+An object class that describes the end user’s device. For more information, see section **3.2.18 Object: Device** in the [OpenRTB API guide](https://www.iab.com/wp-content/uploads/2016/03/OpenRTB-API-Specification-Version-2-5-FINAL.pdf).  
 
-For more information on using Tutorial Manager, click **CONTACT US TO LEARN MORE** and fill out the web form.
+| **Attribute** | **Type** | **Example** | **Description** |
+|:---|:---|:---|:---| 
+| ```ifa``` | string | ```"ifa": "ab12c456-78de-90f1-ghi2-j3kl4567890m"``` |   The Android Advertising ID (AID) or iOS Identifier for Advertisers (IFA/IDFA) sanctioned for advertiser use in the clear (not hashed).<br><br>**Note**: This field is cleared where required by [COPPA or GDPR compliance](https://unityads.unity3d.com/help/exchange/legal). |
+| ```make``` | string | ```"make": "Apple"``` | Device make. |
+| ```model``` | string | ```"model": "iPhone7,2"``` | Device model. |
+| ```ua``` | string | ```"ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 10_0 like Mac OS X) AppleWebKit/602.1.50 (KHTML, like Gecko) Mobile/14A345"``` | Web browser user agent string. |
+| ```lmt``` | int | ```"lmt": 0``` | "Limit Ad Tracking" signal commercially endorsed (e.g., iOS or Android).<br><br><ul><li>```0``` indicates tracking is unrestricted.</li><li>```1``` indicates tracking must be limited per commercial guidelines. This attribute is always passed when set to ```1```. |
+| ```ip``` | string | ```"ip": "12.34.5.6"``` | Device IP address.<br><br>**Note**: This field is masked where required by [COPPA or GDPR compliance](https://unityads.unity3d.com/help/exchange/legal). |
+| ```language``` | string | ```"language": "en"``` | Browser language, using [ISO-639-1-alpha-2](https://en.wikipedia.org/wiki/ISO_639-1) codes. |
+| ```connectiontype``` | int | ```"connectiontype": 1``` | Network connection type. For a complete list of supported values, see table **5.22 Connection Type** in the [OpenRTB API guide](https://www.iab.com/wp-content/uploads/2016/03/OpenRTB-API-Specification-Version-2-5-FINAL.pdf).<br><br>**Note**: This attribute is supported but optional. |
+| ```geo``` | object | For more information, see section on [```geo``` objects](#geo-objects). | Location of the device (assumed to be the user’s current location). |
+| ```devicetype``` | int | ```"devicetype": 4``` | The general type of device. For a complete list of supported values, see table **5.21 Device Type** in the [OpenRTB API guide](https://www.iab.com/wp-content/uploads/2016/03/OpenRTB-API-Specification-Version-2-5-FINAL.pdf).<br><br>Please note that separation between phone and tablet was introduced in in OpenRTB version 2.2:<br><br><ul><li>```1``` indicates a Mobile or Tablet device.</li><li>```4``` specifies a phone.</li><li>```5``` specifies a tablet.</li></ul><br><br>To enforce precision, Unity uses ```4``` and ```5``` whenever possible. When mixed device types do occur, please choose one or the other. |
+| ```os``` | string | ```"os": "ios"``` | Device operating system. |
+| ```osv``` | string | ```"osv": "3.1.2"``` | Device operating system version. |
+| ```hwv``` | string | ```"hwv": "samsung SM-J200H"``` | Hardware version of the device. |
 
-### LiveTune (Beta)
-LiveTune allows you to deliver optimal quality and frame rate performance on any device by dynamically adjusting your content’s complexity. In LiveTune, you group your performance and quality settings into scalable tiers and LiveTune automatically finds the optimal quality level for every device, enabling performance and quality optimization at scale for thousands of devices.
+### geo objects 
+An object class that describes the device’s geographic location. For more information, see section **3.2.19 Object: Geo** in the [OpenRTB API guide](https://www.iab.com/wp-content/uploads/2016/03/OpenRTB-API-Specification-Version-2-5-FINAL.pdf).  
 
-For more information, see beta documentation on [LiveTune](https://unitytech.github.io/livetune-plugin/).
+| **Attribute** | **Type** | **Example** | **Description** |
+|:---|:---|:---|:---| 
+| ```lat``` | float | ```"lat": 50.2981``` | Latitude from ```-90.0``` (south) to ```90.0``` (north).<br><br>**Note**: This field is cleared where required by [COPPA or GDPR compliance](https://unityads.unity3d.com/help/exchange/legal). |
+| ```lon``` | float | ```"lon": 57.1814``` | Longitude from ```-90.0``` (west) to ```90.0``` (east).<br><br>**Note**: This field is cleared where required by [COPPA or GDPR compliance](https://unityads.unity3d.com/help/exchange/legal). |
+| ```type``` | int | ```"type": 2``` | Source of location data. Unity derives location information from the device’s IP Address (```2```).<br><br>**Note**: This field is cleared where required by [COPPA or GDPR compliance](https://unityads.unity3d.com/help/exchange/legal). |
+| ```country``` | string | ```"country": "USA"``` | Country, using [ISO-3166-1-alpha-3](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) codes. |
+| ```city``` | string | ```"city": "San Francisco"``` | City, using United Nations Code for Trade & Transport Locations. See **Appendix A** in the [OpenRTB API guide](https://www.iab.com/wp-content/uploads/2016/03/OpenRTB-API-Specification-Version-2-5-FINAL.pdf) for a link to the codes.<br><br>**Note**: This field is cleared where required by [COPPA or GDPR compliance](https://unityads.unity3d.com/help/exchange/legal).|
+| ```utcoffset``` | int | ```"utcoffset": -480``` | Local time, expressed as the number of +/- minutes from UTC.<br><br>**Note**: This field is cleared where required by [COPPA or GDPR compliance](https://unityads.unity3d.com/help/exchange/legal).|
 
-### A/B Testing (Beta)
-Conduct A/B tests to improve your game. Choose the best settings based on data. Gain the insight you need to make superior decisions.
+### Data privacy classes 
+The following object classes contain the requesting app’s [COPPA](https://en.wikipedia.org/wiki/Children%27s_Online_Privacy_Protection_Act) compliance flag, [GDPR](https://en.wikipedia.org/wiki/General_Data_Protection_Regulation) compliance flag, and user consent flag. 
 
-For more information, see documentation on [**A/B testing**](https://docs.unity3d.com/2018.1/Documentation/Manual/UnityAnalyticsABTesting.html).
+Unity consent requires the user to explicitly agree to use their data for the purposes of personalized ads, as well as game personalization and ads measurement. The prompt to opt-in occurs with the first ad the user sees within a game. This first ad therefore sends a contextual request, while subsequent requests depend on the user’s consent selection. This solution reflects industry best practices of transparency and data collection and usage, following GDPR guidelines and taking into account requirements from recent claims by Data Protection Agencies. For more information see Unified Auction’s [legal documentation](https://unityads.unity3d.com/help/exchange/legal). 
+ 
+In order to ingest and act on bid requests based on the user’s GDPR, COPPA, and user consent status, Unified Auction provides updated OpenRTB specs to reflect the related changes to the bid request fields. 
 
-### Remote Settings
-Use Remote Settings to control properties in your game from the dashboard. You can change game appearance and behavior without needing to release an application update.
+#### regs objects and extensions 
+An object class containing the requesting app’s [COPPA](https://en.wikipedia.org/wiki/Children%27s_Online_Privacy_Protection_Act) and [GDPR](https://en.wikipedia.org/wiki/General_Data_Protection_Regulation) compliance flags. 
 
-For more information, see documentation on [**Remote Settings**](https://docs.unity3d.com/2018.1/Documentation/Manual/UnityAnalyticsRemoteSettings.html).
+| **Attribute** | **Type** | **Example** | **Description** |
+|:---|:---|:---|:---| 
+| ```regs.coppa``` | int | ```"regs": { "coppa": 1 }``` | Flag indicating if the bid request is subject to the COPPA regulations established by the USA FTC.<br><br><ul><li>```0``` indicates no.</li><li>```1``` indicates yes. This attribute is always passed when set to ```1```.</li></ul> |
+| ```regs.ext.gdpr``` | int | ```"regs": { "ext": { "gdpr": 1 } }``` | Upon confirming opt-out from a GDPR-affected user, the request structure for that user’s device sends a flag in the ```regs.ext``` object with the integer value ```1```.<br><br>Unity also strips all personally identifiable information (IDFA, AAID,  IP address, etc.) from the request.<br><br>This attribute is always passed when available. For more information on the spec, please reach out to your Unity account manager. |
+ 
+#### user object extension 
+An object class containing the requesting app’s user consent flag for data collection. 
+ 
+| **Attribute** | **Type** | **Example** | **Description** |
+|:---|:---|:---|:---| 
+| ```user.ext.consent``` | int | ```"user": { "ext": { "consent": 1 } }``` | Flag indicating if the end user has consented to data collection.<br><br><ul><li>```0``` indicates no.</li><li>```1``` indicates yes.</li></ul> |
 
-## Analytics
-Use [Unity Analytics](https://docs.unity3d.com/2018.1/Documentation/Manual/UnityAnalytics.html) to evaluate and improve your game through data.
+### Example bid requests 
+#### VAST bid request 
+```
+ { 
+     "id": "bcaIDT1Nbv0zU8mn9tXQ6j", 
+     "at": 2, 
+     "tmax": 200, 
+     "imp": [ 
+         { 
+             "id": "1", 
+             "secure": 1, 
+             "instl": 1, 
+             "tagid": "15939-video", 
+             "video": { 
+                 "mimes": [ 
+                     "video/mp4" 
+                 ], 
+                 "minduration": 15, 
+                 "maxduration": 30, 
+                 "protocols": [2, 3, 5, 6], 
+                 "sequence": 1, 
+                 "linearity": 1, 
+                 "pos": 7, 
+                 "battr": [ 1, 3, 5, 6, 8, 9, 13], 
+                 "w": 1024, 
+                 "h": 600 
+             } 
+         } 
+     ], 
+     "app": { 
+         "id": "1", 
+         "bundle": "com.unity3d.ads.example", 
+         "name": "Unity Mobile Game", 
+         "storeurl": "https://itunes.apple.com/us/app/unitygame/id12345678?mt=8" 
+     }, 
+     "device": { 
+         "ifa": "ab12c456-78de-90f1-ghi2-j3kl4567890m", 
+         "make": "Apple", 
+         "model": "iPhone", 
+         "lmt": 0, 
+         "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 10_0 like Mac OS X) AppleWebKit/602.1.50 (KHTML, like Gecko) Mobile/14A345", 
+         "os": "ios", 
+         "ip": "12.34.5.6", 
+         "devicetype": 4, 
+         "carrier": "Apple", 
+         "osv": "10.1", 
+         "hwv": "iphone6", 
+         "geo": { 
+             "lat": 55.5492, 
+             "lon": 59.0456, 
+             "country": "USA", 
+             "city": "San Francisco", 
+             "type": 2, 
+             "utcoffset": 180 
+         }, 
+         "connectiontype": 3, 
+         "language": "en", 
+         "h": 1184, 
+         "w": 768 
+     }, 
+     "regs": { 
+         "coppa": 0 
+     }, 
+     "ext": {} 
+ }
+ ``` 
 
-For a detailed breakdown, see documentation on the [Analytics dashboard](https://docs.unity3d.com/2018.1/Documentation/Manual/UnityAnalyticsDashboard.html).
-
-## Settings
-### Project Settings
-From the left navigation bar, select **Settings** > **Project Settings** to view and configure operational settings for your Project.
-
-#### Game IDs
-You need the __Game ID__ for each platform to [initialize the Unity Ads](https://unityads.unity3d.com/help/unity/integration-guide-unity#initializing-the-sdk) and Unity IAP SDKs in your code. You cannot edit these IDs.
-
-![Locating your platform-specific Game IDs.](https://github.com/Applifier/unity-ads/wiki/resources/GameID.png)
-
-#### Project info
-Find the following properties for your Project here:
-
-- **Project name** is the name of your Project.<br><br>**Note**: Though you cannot edit the Project name here, you can do so by navigating to the [Develop dashboard tab](https://developer.cloud.unity3d.com/), then selecting **Settings** > **General**, and following the prompts to rename your Project. 
-- __Project ID__ is a unique identifier for your Project. 
-- **Age designation** indicates whether your Project is directed at children under the age of 13 in the United States (required for [COPPA](https://www.ftc.gov/enforcement/rules/rulemaking-regulatory-reform-proceedings/childrens-online-privacy-protection-rule) compliance). 
-
-![Locating your Project-specific information.](https://github.com/Applifier/unity-ads/wiki/resources/ProjectInfo.png)
-
-#### Store IDs
-Optionally link your Project to live Store IDs for the game’s Apple or Google Play app page. Skipping this step does not prevent you from showing ads, however, some of Unity's advertising partners require this information. In order to maximize revenue opportunities, please make sure you include it when your game is live.
-
-![Linking your Project to live Store IDs.](https://github.com/Applifier/unity-ads/wiki/resources/StoreID.png)
-
-For the Google Play store, extract the Google Play __Store ID__ from your game’s URL, as shown in the highlighted section of the following URL:
-
-![Locating your game's Google Store ID](https://github.com/Applifier/unity-ads/wiki/resources/GoogleStoreID.png)
-
-For the Apple App store, extract the Apple App Store ID from your game’s URL, as shown in the highlighted section of the following URL:
-
-![Locating your game's Apple Store ID](https://github.com/Applifier/unity-ads/wiki/resources/AppleStoreID.png)
-
-**Note**: If you recently published your app, Unity may be unable to look up its ID. Should you encounter this error, please try again 5-7 days after the publish date.
-
-#### Test mode
-Test mode allows you to test your integration without serving live ads. Use this setting to override programmatic settings on a device, by toggling **Override client test mode**, then checking **Force test mode ON (i.e. use test ads) for all devices**. It is important to enable test mode before testing integration to avoid getting flagged for fraud.
-
-![Overriding test mode for your game.](https://github.com/Applifier/unity-ads/wiki/resources/TestMode.png)
-
-#### Ad delivery status
-The **Enable ad delivery** toggle allows you to temporarily stop serving ads to your application.
-
-![Temporarily suspending live ads to your game.](https://github.com/Applifier/unity-ads/wiki/resources/AdDeliveryStatus.png)
-
-### Analytics Settings
-Access settings that are specific to managing your Unity Analytics data. 
-
-For more information, see documentation on [Analytics settings](https://docs.unity3d.com/2018.1/Documentation/Manual/UnityAnalyticsDashboardConfigure.html). 
-
-# Managing Projects
-To manage Projects, navigate to the **Operate** tab of the [Developer Dashboard](https://operate.dashboard.unity3d.com/organizations), and ensure no Projects are selected. Select **Projects** from the left navigation bar to view a list of your Organization’s Projects.
-
-## Adding Projects
-Click **NEW PROJECT** to create a Project under your selected Organization.
-
-![Creating a new Project in the dashboard](https://github.com/Applifier/unity-ads/wiki/resources/NewProject.png)
-
-Enter the following information in the **Add new project** prompt:
-
-![New Project configuration menu](https://github.com/Applifier/unity-ads/wiki/resources/AddNewProject.png)
-
-1. **Project name** acts as the title by which your Project is identified in the dashboard UI.
-2. **Apple App Store ID** is optional, but recommended for published games to maximize access to third-party advertising partners.
-3. **Google Play Store ID** is optional, but recommended for published games to maximize access to third-party advertising partners.<br><br>**Note**: You can always add store IDs later by selecting the Project, then **Monetization** > **Platforms** > **ADD STORE DETAILS**. For more information on locating the relative store IDs, see section on Adding store details.<br><br>
-4. Check the COPPA compliance designation if your game will target an audience under 13 years old in the United States. 
-
-Click **ADD PROJECT** to create your Project. Projects created in the Developer Dashboard automatically enable the Operate services.
-
-## Enabling an existing Project
-Projects created in the Unity Editor do not enable Operate services by default. If a Project’s Operate services are not enabled, selecting them on the dashboard Projects list will prompt you to do so. 
-
-![Enabling Operate services for an existing Project](https://github.com/Applifier/unity-ads/wiki/resources/EnableServices.png)
-
-Click **TURN ON OPERATE**, then set the app store IDs and COPPA compliance designation appropriately to enable services.  
-
-## Editing Projects
-To edit your Project name or [transfer it to a different organization](https://support.unity3d.com/hc/en-us/articles/213524303-How-do-I-transfer-my-Project-to-a-different-Unity-Organization-), navigate to the **Develop** tab of the [Developer Dashboard](https://developer.cloud.unity3d.com/), then select **Settings** > **General** from the left navigation bar.
-
-## Archiving Projects
-This [help article](https://support.unity3d.com/hc/en-us/articles/115000075126-How-do-I-archive-a-Project-) details how to archive old Projects that are cluttering your dashboard, and how to view or change the status of archived Projects.
+#### MRAID (playable) bid request 
+```
+ { 
+     "id": "bcaIDT1Nbv0zU8mn9tXQ6j", 
+     "imp": [ 
+         { 
+             "id": "1", 
+             "banner": { 
+                 "w": 1024, 
+                 "h": 768, 
+                 "battr": [1, 3, 5, 6, 8, 9], 
+                 "pos": 7, 
+                 "api": [5] 
+             }, 
+             "instl": 1, 
+             "tagid": "com.unity-game.trashdash-m3-ios-display", 
+             "secure": 1 
+         } 
+     ], 
+     "app": { 
+         "id": "a1b2c3d4e5f6g7h8i9j0123456789abc", 
+         "name": "Example Game", 
+         "bundle": "com.unity.examplegame", 
+         "storeurl": "https://itunes.apple.com/us/app/unitygame/id12345678?mt=8" 
+     }, 
+     "device": { 
+         "ifa": "ab12c456-78de-90f1-ghi2-j3kl4567890m", 
+         "ua": "Mozilla/5.0 (iPad; CPU OS 11_2_2 like Mac OS X) AppleWebKit/604.4.7 (KHTML, like Gecko) Mobile/15C202", 
+         "geo": { 
+             "lat": 55.5492, 
+             "lon": 59.0456, 
+             "country": "USA", 
+             "city": "San Francisco", 
+             "type": 2, 
+             "utcoffset": 180 
+         }, 
+         "lmt": 1, 
+         "ip": "12.34.5.6", 
+         "devicetype": 5, 
+         "model": "iPad5,3", 
+         "os": "ios", 
+         "osv": "11.2.2", 
+         "hwv": "iPad Air 2 (Wi-Fi)", 
+         "h": 768, 
+         "w": 1024, 
+         "language": "en", 
+         "connectiontype": 2 
+     }, 
+     "at": 2, 
+     "tmax": 200, 
+     "regs": {}, 
+     "ext": {} 
+ } 
+```
+ 
+#### MRAID (non-playable) bid request 
+```
+ { 
+     "id": "ApJv9QAmN3FJjEcTtFDtW3", 
+     "imp": [ 
+         { 
+             "id": "1", 
+             "banner": { 
+                 "w": 480, 
+                 "h": 320, 
+                 "battr": [1, 3, 5, 6, 8, 9, 13], 
+                 "pos": 7 
+             }, 
+             "instl": 1, 
+             "tagid": "com.pixel.gun3d-display", 
+             "secure": 1 
+         } 
+     ], 
+     "app": { 
+         "id": "1", 
+         "bundle": "com.unity3d.ads.example", 
+         "name": "Unity Mobile Game", 
+         "storeurl": "https://itunes.apple.com/us/app/unitygame/id12345678?mt=8" 
+     }, 
+     "device": { 
+         "ua": "Mozilla/5.0 (Linux; Android 5.1.1; SM-J200H Build/LMY48B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/64.0.3282.137 Mobile Safari/537.36", 
+         "geo": { 
+             "lat": 55.5492, 
+             "lon": 59.0456, 
+             "country": "USA", 
+             "city": "San Francisco", 
+             "type": 2, 
+             "utcoffset": 180 
+         }, 
+         "ip": "12.34.5.6", 
+         "devicetype": 4, 
+         "make": "samsung", 
+         "model": "SM-J200H", 
+         "os": "android", 
+         "osv": "5.1", 
+         "hwv": "samsung SM-J200H", 
+         "h": 540, 
+         "w": 960, 
+         "language": "ru", 
+         "carrier": "Tele2", 
+         "connectiontype": 2, 
+         "ifa": "dd92e219-68ae-43b9-bcb7-e6fb7557806e" 
+     }, 
+     "at": 2, 
+     "tmax": 200, 
+     "regs": {}, 
+     "ext": {} 
+ } 
+```
+[Back to top](#overview)
